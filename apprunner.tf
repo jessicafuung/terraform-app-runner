@@ -2,8 +2,9 @@ resource "aws_apprunner_service" "service" {
   service_name = var.prefix
 
   source_configuration {
+
     authentication_configuration {
-      access_role_arn = aws_iam_role.apprunner-service-role.arn
+      access_role_arn = "arn:aws:iam::244530008913:role/service-role/AppRunnerECRAccessRole"
     }
 
     image_repository {
@@ -14,27 +15,5 @@ resource "aws_apprunner_service" "service" {
       image_repository_type = "ECR"
     }
     auto_deployments_enabled = true
-  }
-}
-
-resource "aws_iam_role" "apprunner-service-role" {
-  name               = "${var.prefix}-AppRunnerECRAccess"
-  path               = "/"
-  assume_role_policy = data.aws_iam_policy_document.apprunner-service-assume-policy.json
-}
-
-resource "aws_iam_role_policy_attachment" "apprunner-service-role-attachment" {
-  role       = aws_iam_role.apprunner-service-role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSAppRunnerServicePolicyForECRAccess"
-}
-
-data "aws_iam_policy_document" "apprunner-service-assume-policy" {
-  statement {
-    effect  = "Allow"
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["build.apprunner.amazonaws.com"]
-    }
   }
 }
